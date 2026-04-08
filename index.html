@@ -1,0 +1,790 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>SNS風 研修テストサイト（フルセット整合版）</title>
+<style>
+  :root{
+    --bg1:#fff8fc;
+    --bg2:#f4fbff;
+    --card:#ffffff;
+    --line:#eadff5;
+    --text:#334155;
+    --sub:#7c8aa0;
+    --accent:#7c3aed;
+    --accent2:#ec4899;
+    --mint:#14b8a6;
+    --soft:#f3e8ff;
+    --soft2:#ffe4f1;
+    --yellow:#fff4cc;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:var(--text);
+    background:linear-gradient(180deg,var(--bg1),var(--bg2));
+  }
+  .app{
+    max-width:430px;
+    margin:0 auto;
+    min-height:100vh;
+    background:linear-gradient(180deg,#fffafc,#f7fbff);
+  }
+  header{
+    position:sticky;
+    top:0;
+    z-index:10;
+    background:rgba(255,255,255,.88);
+    backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+    padding:14px 16px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+  }
+  .brand{
+    font-size:20px;
+    font-weight:800;
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
+    -webkit-background-clip:text;
+    -webkit-text-fill-color:transparent;
+  }
+  .small{font-size:12px;color:var(--sub)}
+  .screen{display:none;padding:14px}
+  .screen.active{display:block}
+  .card{
+    background:var(--card);
+    border:1px solid var(--line);
+    border-radius:18px;
+    padding:14px;
+    margin-bottom:12px;
+    box-shadow:0 8px 24px rgba(124,58,237,.07);
+  }
+  .title{font-weight:800;margin-bottom:8px}
+  .row{display:flex;gap:8px;align-items:center}
+  .between{justify-content:space-between}
+  .wrap{flex-wrap:wrap}
+  input, textarea, select{
+    width:100%;
+    border:1px solid #d8cdea;
+    border-radius:12px;
+    padding:11px 12px;
+    font-size:16px;
+    background:#fff;
+    color:var(--text);
+  }
+  textarea{min-height:88px;resize:vertical}
+  button{
+    border:none;
+    border-radius:12px;
+    padding:11px 14px;
+    font-size:15px;
+    cursor:pointer;
+    font-weight:700;
+  }
+  .btn-primary{background:linear-gradient(90deg,var(--accent),var(--accent2));color:#fff}
+  .btn-sub{background:var(--soft);color:#6d28d9}
+  .btn-ghost{background:#f8fafc;color:#475569}
+  .btn-mint{background:#ccfbf1;color:#0f766e}
+  .tabbar{
+    position:sticky;
+    bottom:0;
+    background:rgba(255,255,255,.92);
+    backdrop-filter:blur(8px);
+    border-top:1px solid var(--line);
+    display:grid;
+    grid-template-columns:repeat(5,1fr);
+    gap:4px;
+    padding:8px 6px calc(8px + env(safe-area-inset-bottom));
+  }
+  .tabbar button{
+    padding:10px 4px;
+    font-size:12px;
+    background:#fff;
+    color:#64748b;
+  }
+  .tabbar button.active{color:#7c3aed;background:#f3e8ff}
+  .avatar{
+    width:42px;height:42px;border-radius:50%;
+    background:linear-gradient(135deg,#f9a8d4,#c4b5fd);
+    display:flex;align-items:center;justify-content:center;
+    font-weight:800;color:#fff;flex-shrink:0;
+    box-shadow:0 4px 10px rgba(236,72,153,.2);
+  }
+  .post{display:flex;gap:10px}
+  .meta{font-size:12px;color:var(--sub)}
+  .content{margin-top:6px;line-height:1.55}
+  .post-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+  .chip{
+    display:inline-block;
+    padding:4px 9px;
+    border-radius:999px;
+    background:var(--soft2);
+    color:#be185d;
+    font-size:12px;
+    font-weight:700;
+  }
+  .notice{
+    padding:10px 12px;
+    border-radius:12px;
+    background:var(--yellow);
+    border:1px solid #f6d365;
+    color:#8a5a00;
+    margin-bottom:12px;
+  }
+  .divider{height:1px;background:#f0e8f8;margin:12px 0}
+  .hidden{display:none}
+  .err{color:#dc2626;font-size:12px;margin-top:6px;min-height:16px}
+  .ok{color:#059669}
+  .count{font-weight:800}
+  .list-item{padding:12px 0;border-bottom:1px solid #f2eaf7}
+  .badge{
+    display:inline-block;
+    padding:4px 8px;
+    border-radius:999px;
+    background:#ccfbf1;
+    color:#0f766e;
+    font-size:12px;
+    font-weight:700;
+  }
+  .linkish{color:#7c3aed;text-decoration:underline;cursor:pointer}
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <div>
+      <div class="brand">MiniShare</div>
+      <div class="small">テスター新人研修用SNSサイト</div>
+    </div>
+    <button id="logoutBtn" class="btn-ghost hidden" onclick="logout()">ログアウト</button>
+  </header>
+
+  <main>
+    <section id="login" class="screen active">
+      <div class="card">
+        <div class="title">ログイン</div>
+        <div class="small">テスト用アカウントでログインしてください</div>
+        <div style="height:12px"></div>
+        <label class="small">メールアドレス</label>
+        <input id="loginEmail" type="email" placeholder="tester@example.com">
+        <div class="err" id="loginEmailErr"></div>
+        <label class="small">パスワード</label>
+        <input id="loginPass" type="password" placeholder="password">
+        <div class="err" id="loginPassErr"></div>
+        <div class="row wrap" style="margin-top:10px">
+          <button class="btn-primary" onclick="login()">ログイン</button>
+          <button class="btn-sub" onclick="fillDemo()">入力例を入れる</button>
+          <button class="btn-ghost" onclick="showPublicScreen('register')">新規登録</button>
+        </div>
+        <div class="divider"></div>
+        <div class="small">ヒント: tester@example.com / test1234</div>
+        <div style="height:8px"></div>
+        <button class="btn-ghost" onclick="showPublicScreen('reset')">パスワードを忘れた場合</button>
+      </div>
+    </section>
+
+    <section id="register" class="screen">
+      <div class="card">
+        <div class="title">新規登録</div>
+        <label class="small">表示名</label>
+        <input id="regName" placeholder="テスト花子">
+        <label class="small">メールアドレス</label>
+        <input id="regEmail" placeholder="sample@example.com">
+        <label class="small">パスワード</label>
+        <input id="regPass" type="password" placeholder="8文字以上">
+        <div class="err" id="registerErr"></div>
+        <div style="height:10px"></div>
+        <button class="btn-primary" onclick="registerUser()">登録する</button>
+        <button class="btn-ghost" onclick="showPublicScreen('login')">ログインへ戻る</button>
+        <div class="err ok" id="registerMsg"></div>
+      </div>
+    </section>
+
+    <section id="reset" class="screen">
+      <div class="card">
+        <div class="title">パスワード再設定</div>
+        <label class="small">登録メールアドレス</label>
+        <input id="resetEmail" placeholder="tester@example.com">
+        <div style="height:10px"></div>
+        <button class="btn-primary" onclick="sendReset()">再設定メール送信</button>
+        <button class="btn-ghost" onclick="showPublicScreen('login')">ログインへ戻る</button>
+        <div class="err ok" id="resetMsg"></div>
+      </div>
+    </section>
+
+    <section id="home" class="screen">
+      <div class="notice">表示・動作・遷移確認を行ってください。複数のバグが含まれています。</div>
+      <div class="card">
+        <div class="row between">
+          <div>
+            <div class="title" style="margin-bottom:2px">投稿一覧</div>
+            <div class="small">投稿、いいね、詳細、プロフィール遷移を確認</div>
+          </div>
+          <div class="chip">投稿数 <span id="postCount" class="count">0</span></div>
+        </div>
+      </div>
+      <div id="feed"></div>
+    </section>
+
+    <section id="post" class="screen">
+      <div class="card">
+        <div class="title">投稿</div>
+        <label class="small">本文</label>
+        <textarea id="postText" placeholder="いまどうしてる？"></textarea>
+        <div class="err" id="postErr"></div>
+        <label class="small">公開範囲</label>
+        <select id="postScope">
+          <option>公開</option>
+          <option>フォロワーのみ</option>
+          <option>自分のみ</option>
+        </select>
+        <div style="height:10px"></div>
+        <button class="btn-primary" onclick="createPost()">投稿する</button>
+        <button class="btn-ghost" onclick="clearPost()">クリア</button>
+      </div>
+    </section>
+
+    <section id="detail" class="screen">
+      <div class="card">
+        <div class="title">投稿詳細</div>
+        <div id="detailBox"></div>
+        <div style="height:10px"></div>
+        <button class="btn-ghost" onclick="showScreen('home')">一覧へ戻る</button>
+      </div>
+    </section>
+
+    <section id="comments" class="screen">
+      <div class="card">
+        <div class="title">コメント一覧</div>
+        <div id="commentList"></div>
+        <div class="divider"></div>
+        <label class="small">コメント投稿</label>
+        <input id="commentInput" placeholder="コメントを入力">
+        <div style="height:10px"></div>
+        <button class="btn-primary" onclick="addComment()">コメントする</button>
+        <div class="err ok" id="commentMsg"></div>
+      </div>
+    </section>
+
+    <section id="notify" class="screen">
+      <div class="card">
+        <div class="title">通知</div>
+        <div id="notifications"></div>
+      </div>
+    </section>
+
+    <section id="notifyDetail" class="screen">
+      <div class="card">
+        <div class="title">通知詳細</div>
+        <div id="notifyDetailBox"></div>
+        <div style="height:10px"></div>
+        <button class="btn-ghost" onclick="showScreen('notify')">通知へ戻る</button>
+      </div>
+    </section>
+
+    <section id="profile" class="screen">
+      <div class="card" id="profileCard">
+        <div class="row">
+          <div class="avatar">T</div>
+          <div>
+            <div class="title" style="margin-bottom:2px">tester_user</div>
+            <div class="small">@tester_user</div>
+          </div>
+        </div>
+        <div class="divider"></div>
+        <label class="small">表示名</label>
+        <input id="profileName" value="テスト 太郎">
+        <label class="small">自己紹介</label>
+        <textarea id="profileBio">新人テスターです。表示・動作・遷移を確認中です。</textarea>
+        <div style="height:10px"></div>
+        <button class="btn-primary" onclick="saveProfile()">保存</button>
+        <div class="err ok" id="profileMsg"></div>
+      </div>
+
+      <div class="card">
+        <div class="title">アカウント情報</div>
+        <div class="small">フォロー 12 / フォロワー 34</div>
+        <div class="small" style="margin-top:8px">詳細設定は <span class="linkish" onclick="showScreen('settings')">こちら</span></div>
+        <div class="small" style="margin-top:8px">フォロー一覧は <span class="linkish" onclick="showScreen('followList')">こちら</span></div>
+      </div>
+    </section>
+
+    <section id="settings" class="screen">
+      <div class="card">
+        <div class="title">設定</div>
+        <label class="small">通知メール</label>
+        <input id="mailSetting" value="tester@example.com">
+        <label class="small">テーマ</label>
+        <select id="themeSelect">
+          <option>ライト</option>
+          <option>パステル</option>
+        </select>
+        <div style="height:10px"></div>
+        <button class="btn-primary" onclick="saveSettings()">設定を保存</button>
+        <div class="err ok" id="settingsMsg"></div>
+      </div>
+    </section>
+
+    <section id="search" class="screen">
+      <div class="card">
+        <div class="title">検索</div>
+        <input id="searchInput" placeholder="ユーザー名で検索" oninput="runSearch()">
+      </div>
+      <div class="card">
+        <div id="searchResults"></div>
+      </div>
+    </section>
+
+    <section id="followList" class="screen">
+      <div class="card">
+        <div class="title">フォロー / フォロワー一覧</div>
+        <div class="row wrap" style="margin-bottom:10px">
+          <button class="btn-sub" onclick="renderFollowList('following')">フォロー中</button>
+          <button class="btn-mint" onclick="renderFollowList('followers')">フォロワー</button>
+        </div>
+        <div id="followListBox"></div>
+      </div>
+    </section>
+
+    <section id="dmList" class="screen">
+      <div class="card">
+        <div class="title">DM一覧</div>
+        <div id="dmListBox"></div>
+      </div>
+    </section>
+
+    <section id="dmDetail" class="screen">
+      <div class="card">
+        <div class="title">DM詳細</div>
+        <div id="dmDetailBox"></div>
+        <div class="divider"></div>
+        <label class="small">メッセージ送信</label>
+        <input id="dmInput" placeholder="メッセージを入力">
+        <div style="height:10px"></div>
+        <button class="btn-primary" onclick="sendDm()">送信</button>
+        <div class="err ok" id="dmMsg"></div>
+      </div>
+    </section>
+
+    <section id="announcements" class="screen">
+      <div class="card">
+        <div class="title">お知らせ一覧</div>
+        <div id="announcementList"></div>
+      </div>
+    </section>
+  </main>
+
+  <nav id="tabbar" class="tabbar hidden">
+    <button data-target="home" onclick="showScreen('home')">ホーム</button>
+    <button data-target="post" onclick="showScreen('post')">投稿</button>
+    <button data-target="search" onclick="showScreen('search')">検索</button>
+    <button data-target="notify" onclick="showScreen('notify')">通知</button>
+    <button data-target="profile" onclick="showScreen('profile')">プロフィール</button>
+  </nav>
+</div>
+
+<script>
+const state = {
+  loggedIn:false,
+  currentPostId:null,
+  currentNotifyIndex:null,
+  currentDmId:null,
+  posts:[
+    {id:1,user:"mika",name:"美香",time:"5分前",text:"今日はログイン機能を確認したよ！",likes:2,liked:false},
+    {id:2,user:"yuto",name:"ゆうと",time:"20分前",text:"画面遷移をチェック中。戻る操作も見た方がよさそう。",likes:5,liked:false},
+    {id:3,user:"qa_lead",name:"QAリード",time:"1時間前",text:"研修では表示・動作・遷移の3観点を忘れずに。",likes:8,liked:false}
+  ],
+  comments:{
+    1:["なるほど！","ログイン観点助かる"],
+    2:["戻る操作も大事ですね"],
+    3:["メモしておきます"]
+  },
+  notifications:[
+    "美香さんがあなたをフォローしました",
+    "QAリードさんが投稿にいいねしました",
+    "お知らせ: 本日は研修サイト更新日です"
+  ],
+  users:[
+    {name:"美香",account:"mika",bio:"フロント確認が好き"},
+    {name:"ゆうと",account:"yuto",bio:"画面遷移テスト担当"},
+    {name:"QAリード",account:"qa_lead",bio:"品質第一"},
+    {name:"テスト花子",account:"hanako",bio:"バグ報告練習中"}
+  ],
+  following:["mika","qa_lead"],
+  followers:["yuto","hanako"],
+  dms:[
+    {id:1,name:"美香",account:"mika",messages:["こんにちは！","今日は研修どう？"]},
+    {id:2,name:"QAリード",account:"qa_lead",messages:["進捗どうですか？","表示確認も忘れずに"]}
+  ],
+  announcements:[
+    {title:"研修実施のお知らせ", body:"本日はSNS風サイトを用いた表示・動作・遷移確認を行います。"},
+    {title:"提出物について", body:"バグ報告書は画面名、再現手順、期待結果、実際結果を記載してください。"},
+    {title:"更新情報", body:"本日、DM画面と検索画面が追加されました。"}
+  ]
+};
+
+function escapeHtml(str){
+  return String(str)
+    .replaceAll('&','&amp;')
+    .replaceAll('<','&lt;')
+    .replaceAll('>','&gt;')
+    .replaceAll('"','&quot;')
+    .replaceAll("'","&#039;");
+}
+
+function showPublicScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if(target) target.classList.add('active');
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  const target = document.getElementById(id);
+  if(target){ target.classList.add('active'); }
+  document.querySelectorAll('.tabbar button').forEach(b=>b.classList.remove('active'));
+  const tab = document.querySelector(`.tabbar button[data-target="${id}"]`);
+  if(tab) tab.classList.add('active');
+
+  if(id === 'home') renderFeed();
+  if(id === 'notify') renderNotifications();
+  if(id === 'comments') renderComments();
+  if(id === 'search') runSearch();
+  if(id === 'followList') renderFollowList('following');
+  if(id === 'dmList') renderDmList();
+  if(id === 'announcements') renderAnnouncements();
+}
+
+function fillDemo(){
+  document.getElementById('loginEmail').value = 'tester@example.com';
+  document.getElementById('loginPass').value = 'test1234';
+}
+
+function login(){
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value.trim();
+  document.getElementById('loginEmailErr').textContent = '';
+  document.getElementById('loginPassErr').textContent = '';
+
+  if(!email){
+    document.getElementById('loginEmailErr').textContent = 'メールアドレスを入力してください';
+    return;
+  }
+  if(!pass){
+    document.getElementById('loginPassErr').textContent = 'パスワードを入力してください';
+    return;
+  }
+
+  // BUG 10: メール形式の妥当性をチェックしていない
+  if(email === 'tester@example.com' && pass === 'test1234'){
+    state.loggedIn = true;
+    document.getElementById('tabbar').classList.remove('hidden');
+    document.getElementById('logoutBtn').classList.remove('hidden');
+    showScreen('home');
+  }else{
+    alert('ログインに失敗しました');
+  }
+}
+
+function logout(){
+  state.loggedIn = false;
+  document.getElementById('tabbar').classList.add('hidden');
+  document.getElementById('logoutBtn').classList.add('hidden');
+  showPublicScreen('login');
+}
+
+function registerUser(){
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value.trim();
+  document.getElementById('registerErr').textContent = '';
+  if(!name || !email || !pass){
+    document.getElementById('registerErr').textContent = '必須項目を入力してください';
+    return;
+  }
+  document.getElementById('registerMsg').textContent = '登録が完了しました';
+}
+
+function sendReset(){
+  document.getElementById('resetMsg').textContent = '再設定メールを送信しました';
+}
+
+function renderFeed(){
+  const feed = document.getElementById('feed');
+  feed.innerHTML = '';
+  document.getElementById('postCount').textContent = state.posts.length;
+
+  state.posts.forEach(post=>{
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML = `
+      <div class="post">
+        <div class="avatar">${post.name.slice(0,1)}</div>
+        <div style="flex:1">
+          <div><b>${escapeHtml(post.name)}</b> <span class="small">@${escapeHtml(post.user)}</span></div>
+          <div class="meta">${post.time}</div>
+          <div class="content">${escapeHtml(post.text)}</div>
+          <div class="post-actions">
+            <button class="btn-ghost" onclick="toggleLike(${post.id})">いいね ${post.likes}</button>
+            <button class="btn-sub" onclick="openDetail(${post.id})">詳細</button>
+            <button class="btn-sub" onclick="openComments(${post.id})">コメント</button>
+            <button class="btn-sub" onclick="showScreen('profile')">プロフィール</button>
+          </div>
+        </div>
+      </div>
+    `;
+    feed.appendChild(card);
+  });
+
+  const shortcut = document.createElement('div');
+  shortcut.className = 'card';
+  shortcut.innerHTML = `
+    <div class="title">その他メニュー</div>
+    <div class="row wrap">
+      <button class="btn-sub" onclick="showScreen('dmList')">DM一覧</button>
+      <button class="btn-mint" onclick="showScreen('followList')">フォロー一覧</button>
+      <button class="btn-ghost" onclick="showScreen('announcements')">お知らせ</button>
+    </div>
+  `;
+  feed.appendChild(shortcut);
+}
+
+// BUG 1: いいね数が増えない
+function toggleLike(id){
+  const p = state.posts.find(x=>x.id===id);
+  if(!p) return;
+  renderFeed();
+}
+
+function openDetail(id){
+  const post = state.posts.find(x=>x.id===id);
+  if(!post) return;
+  state.currentPostId = id;
+  document.getElementById('detailBox').innerHTML = `
+    <div><b>${escapeHtml(post.name)}</b> <span class="small">@${escapeHtml(post.user)}</span></div>
+    <div class="meta">${post.time}</div>
+    <div class="divider"></div>
+    <div>${escapeHtml(post.text)}</div>
+    <div style="height:10px"></div>
+    <span class="badge">いいね ${post.likes}</span>
+  `;
+  showScreen('detail');
+}
+
+function openComments(id){
+  state.currentPostId = id;
+  renderComments();
+  showScreen('comments');
+}
+
+function renderComments(){
+  const box = document.getElementById('commentList');
+  const list = state.comments[state.currentPostId] || [];
+  box.innerHTML = '';
+  if(list.length === 0){
+    box.innerHTML = '<div class="small">コメントはありません</div>';
+    return;
+  }
+  list.forEach((c,idx)=>{
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    div.innerHTML = `<div><b>user${idx+1}</b></div><div class="small">${escapeHtml(c)}</div>`;
+    box.appendChild(div);
+  });
+}
+
+// BUG 8: 空コメントでも送信可能
+function addComment(){
+  const input = document.getElementById('commentInput');
+  const msg = document.getElementById('commentMsg');
+  const text = input.value;
+  if(!state.currentPostId) state.currentPostId = 1;
+  if(!state.comments[state.currentPostId]) state.comments[state.currentPostId] = [];
+  state.comments[state.currentPostId].push(text);
+  input.value = '';
+  msg.textContent = 'コメントしました';
+  msg.className = 'err ok';
+  renderComments();
+}
+
+function renderNotifications(){
+  const box = document.getElementById('notifications');
+  box.innerHTML = '';
+  state.notifications.forEach((n, idx)=>{
+    const item = document.createElement('div');
+    item.className = 'list-item';
+    item.innerHTML = `
+      <div>${escapeHtml(n)}</div>
+      <div class="row between" style="margin-top:8px">
+        <span class="small">No.${idx+1}</span>
+        <button class="btn-sub" onclick="openNotifyDetail(${idx})">詳細</button>
+      </div>
+    `;
+    box.appendChild(item);
+  });
+}
+
+function openNotifyDetail(idx){
+  state.currentNotifyIndex = idx;
+  document.getElementById('notifyDetailBox').innerHTML = `
+    <div class="title" style="margin-bottom:4px">通知 ${idx+1}</div>
+    <div>${escapeHtml(state.notifications[idx])}</div>
+  `;
+  showScreen('notifyDetail');
+  // BUG 6: 既読処理がない
+}
+
+// BUG 9: 文字数制限なし
+function createPost(){
+  const text = document.getElementById('postText').value;
+  document.getElementById('postErr').textContent = '';
+  if(text.trim() === ''){
+    document.getElementById('postErr').textContent = '本文を入力してください';
+    return;
+  }
+  state.posts.unshift({
+    id:Date.now(),
+    user:'tester_user',
+    name:'テスト 太郎',
+    time:'たった今',
+    text:text,
+    likes:0,
+    liked:false
+  });
+  document.getElementById('postText').value = '';
+  showScreen('home');
+}
+
+// BUG 2: クリアが行えない
+function clearPost(){
+  document.getElementById('postErr').textContent = '';
+  alert('クリアしました');
+}
+
+// BUG 3: 保存時にUI崩れ
+function saveProfile(){
+  document.getElementById('profileMsg').textContent = '保存しました';
+  const card = document.getElementById('profileCard');
+  card.style.width = '700px';
+  card.style.marginLeft = '-120px';
+  card.style.transform = 'rotate(1deg)';
+}
+
+// BUG 7: 保存メッセージだけで反映なし
+function saveSettings(){
+  document.getElementById('settingsMsg').textContent = '設定を保存しました';
+}
+
+// BUG 5: 一部ユーザーが検索結果に出ない（hanakoを除外）
+function runSearch(){
+  const keyword = (document.getElementById('searchInput').value || '').trim().toLowerCase();
+  const box = document.getElementById('searchResults');
+  const list = state.users.filter(u => u.account !== 'hanako').filter(u => u.name.toLowerCase().includes(keyword) || u.account.toLowerCase().includes(keyword));
+  box.innerHTML = '';
+  if(list.length === 0){
+    box.innerHTML = '<div class="small">検索結果はありません</div>';
+    return;
+  }
+  list.forEach(u=>{
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    div.innerHTML = `
+      <div class="row between">
+        <div>
+          <div><b>${escapeHtml(u.name)}</b> <span class="small">@${escapeHtml(u.account)}</span></div>
+          <div class="small">${escapeHtml(u.bio)}</div>
+        </div>
+        <button class="btn-sub" onclick="alert('フォローしました')">フォロー</button>
+      </div>
+    `;
+    box.appendChild(div);
+  });
+}
+
+function renderFollowList(mode){
+  const box = document.getElementById('followListBox');
+  const accounts = mode === 'followers' ? state.followers : state.following;
+  const users = state.users.filter(u => accounts.includes(u.account));
+  box.innerHTML = `<div class="small" style="margin-bottom:10px">${mode === 'followers' ? 'フォロワー一覧' : 'フォロー中一覧'}</div>`;
+  users.forEach(u=>{
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    div.innerHTML = `<div><b>${escapeHtml(u.name)}</b> <span class="small">@${escapeHtml(u.account)}</span></div><div class="small">${escapeHtml(u.bio)}</div>`;
+    box.appendChild(div);
+  });
+}
+
+function renderDmList(){
+  const box = document.getElementById('dmListBox');
+  box.innerHTML = '';
+  state.dms.forEach(dm=>{
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    div.innerHTML = `
+      <div class="row between">
+        <div>
+          <div><b>${escapeHtml(dm.name)}</b> <span class="small">@${escapeHtml(dm.account)}</span></div>
+          <div class="small">${escapeHtml(dm.messages[dm.messages.length-1])}</div>
+        </div>
+        <button class="btn-sub" onclick="openDm(${dm.id})">開く</button>
+      </div>
+    `;
+    box.appendChild(div);
+  });
+}
+
+function openDm(id){
+  state.currentDmId = id;
+  const dm = state.dms.find(x => x.id === id);
+  if(!dm) return;
+  const lines = dm.messages.map(m => `<div class="list-item">${escapeHtml(m)}</div>`).join('');
+  document.getElementById('dmDetailBox').innerHTML = `
+    <div><b>${escapeHtml(dm.name)}</b> <span class="small">@${escapeHtml(dm.account)}</span></div>
+    <div class="divider"></div>
+    ${lines}
+  `;
+  showScreen('dmDetail');
+}
+
+// BUG 4: 送信後、DM一覧の表示更新が分かりづらい/一覧再描画なし
+function sendDm(){
+  const input = document.getElementById('dmInput');
+  const text = input.value.trim();
+  const msg = document.getElementById('dmMsg');
+  if(!text){
+    msg.textContent = 'メッセージを入力してください';
+    msg.className = 'err';
+    return;
+  }
+  const dm = state.dms.find(x => x.id === state.currentDmId);
+  if(dm){
+    dm.messages.push(text);
+    input.value = '';
+    msg.textContent = '送信しました';
+    msg.className = 'err ok';
+    openDm(dm.id);
+  }
+}
+
+function renderAnnouncements(){
+  const box = document.getElementById('announcementList');
+  box.innerHTML = '';
+  state.announcements.forEach(a=>{
+    const div = document.createElement('div');
+    div.className = 'list-item';
+    div.innerHTML = `<div><b>${escapeHtml(a.title)}</b></div><div class="small">${escapeHtml(a.body)}</div>`;
+    box.appendChild(div);
+  });
+}
+
+// BUG 11: リロードでログイン状態保持なし
+// BUG 12: 公開範囲設定が実動作に反映されない
+
+renderFeed();
+renderNotifications();
+</script>
+</body>
+</html>
