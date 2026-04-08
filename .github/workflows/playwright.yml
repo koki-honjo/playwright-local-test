@@ -26,3 +26,10 @@ jobs:
         with:
           name: playwright-report
           path: playwright-report
+
+      - name: Notify Slack (on failure)
+        if: failure()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data '{"text":"❌ Playwrightテスト失敗！GitHub Actionsを確認してください"}' \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
