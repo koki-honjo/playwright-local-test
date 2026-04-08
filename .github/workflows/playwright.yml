@@ -27,9 +27,16 @@ jobs:
           name: playwright-report
           path: playwright-report
 
+      - name: Notify Slack (on success)
+        if: success()
+        run: |
+          curl -X POST -H 'Content-type: application/json' \
+          --data "{\"text\":\"✅ Playwrightテスト成功！ by ${{ github.actor }}\n🔗 ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
+          ${{ secrets.SLACK_WEBHOOK_URL }}
+
       - name: Notify Slack (on failure)
         if: failure()
         run: |
           curl -X POST -H 'Content-type: application/json' \
-          --data '{"text":"❌ Playwrightテスト失敗！GitHub Actionsを確認してください"}' \
+          --data "{\"text\":\"❌ Playwrightテスト失敗！ by ${{ github.actor }}\n🔗 ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}\"}" \
           ${{ secrets.SLACK_WEBHOOK_URL }}
