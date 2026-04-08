@@ -18,7 +18,3 @@ test('パスワード未入力でエラー表示', async ({ page }) => {
   await page.getByRole('button', { name: 'ログイン' }).click();
   await expect(page.locator('#loginPassErr')).toContainText('パスワードを入力してください');
 });
-
-test('強制失敗テスト', async ({ page }) => {
-  expect(1).toBe(2);
-});
