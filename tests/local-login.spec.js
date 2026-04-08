@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { openLocalSite, login } from './helpers';
+import { openLocalSite, login } from './helpers.js';
 
 test('正常ログインできる', async ({ page }) => {
   await login(page);
@@ -17,4 +17,8 @@ test('パスワード未入力でエラー表示', async ({ page }) => {
   await page.locator('#loginEmail').fill('tester@example.com');
   await page.getByRole('button', { name: 'ログイン' }).click();
   await expect(page.locator('#loginPassErr')).toContainText('パスワードを入力してください');
+});
+
+test('強制失敗テスト', async ({ page }) => {
+  expect(1).toBe(2);
 });
