@@ -2,10 +2,11 @@ import path from 'path';
 import { expect } from '@playwright/test';
 import { users } from './test-data.js';
 
-export const filePath = 'file://' + path.resolve('./検証用.html');
+export const filePath = 'file://' + path.resolve('./index.html');
 
 export async function openLocalSite(page) {
   await page.goto(filePath);
+  await expect(page.locator('#login')).toHaveClass(/active/);
 }
 
 export async function login(
@@ -14,8 +15,13 @@ export async function login(
   password = users.validUser.password
 ) {
   await openLocalSite(page);
+
+  await expect(page.locator('#loginEmail')).toBeVisible();
   await page.locator('#loginEmail').fill(email);
+
+  await expect(page.locator('#loginPass')).toBeVisible();
   await page.locator('#loginPass').fill(password);
+
   await page.getByRole('button', { name: 'ログイン' }).click();
 }
 
