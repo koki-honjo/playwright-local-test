@@ -2,7 +2,7 @@ import path from 'path';
 import { expect } from '@playwright/test';
 import { users } from './test-data.js';
 
-export const filePath = 'file://' + path.resolve('./index.html');
+export const filePath = 'file://' + path.resolve('./検証用.html');
 
 export async function openLocalSite(page) {
   await page.goto(filePath);
@@ -21,4 +21,12 @@ export async function login(
 
 export async function expectHomeVisible(page) {
   await expect(page.locator('#home')).toHaveClass(/active/);
+}
+
+export async function gotoTab(page, name) {
+  await page.getByRole('button', { name }).click();
+}
+
+export async function expectVisibleText(page, text) {
+  await expect(page.getByText(text)).toBeVisible();
 }
