@@ -1,0 +1,37 @@
+name: Playwright Bug Checks
+
+on:
+  workflow_dispatch:
+
+jobs:
+  bug-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run bug detection tests
+        run: npx playwright test tests/bug --project=chromium
+
+      - name: Upload Report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-bug-report
+          path: |
+            playwright-report
+            test-results

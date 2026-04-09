@@ -12,6 +12,7 @@ module.exports = defineConfig({
     {
       name: 'chromium',
       use: { browserName: 'chromium' },
+      testMatch: /normal\/.*\.spec\.js$/,
     },
   ],
 });
