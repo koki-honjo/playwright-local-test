@@ -7,12 +7,19 @@ module.exports = defineConfig({
   reporter: [['list'], ['html']],
   use: {
     headless: true,
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure',
   },
   projects: [
     {
-      name: 'chromium',
-      use: { browserName: 'chromium' },
+      name: 'normal-chromium',
       testMatch: /normal\/.*\.spec\.js$/,
+      use: { browserName: 'chromium' },
+    },
+    {
+      name: 'bug-chromium',
+      testMatch: /bug\/.*\.spec\.js$/,
+      use: { browserName: 'chromium' },
     },
   ],
 });

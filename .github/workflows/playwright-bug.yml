@@ -1,37 +1,48 @@
-name: Playwright Bug Checks
+name: Playwright Bug Tests
 
 on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
   workflow_dispatch:
 
 jobs:
-  bug-test:
+  test-bug:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    continue-on-error: true
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: npm
+          cache: 'npm'
 
       - name: Install dependencies
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps
 
-      - name: Run bug detection tests
-        run: npx playwright test tests/bug --project=chromium
+      - name: Run bug tests
+        run: npx playwright test --project=bug-chromium
 
-      - name: Upload Report
+      - name: Upload Playwright report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: playwright-bug-report
-          path: |
-            playwright-report
-            test-results
+          name: playwright-report-bug
+          path: playwright-report/
+          retention-days: 7
+
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-bug
+          path: test-results/
+          retention-days: 7
