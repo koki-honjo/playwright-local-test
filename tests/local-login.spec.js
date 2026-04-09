@@ -4,6 +4,7 @@ import { users } from './test-data.js';
 
 test('ログイン画面が表示される', async ({ page }) => {
   await openLocalSite(page);
+  await expect(page.locator('#login')).toBeVisible();
   await expect(page.locator('#login')).toHaveClass(/active/);
   await expect(page.locator('#loginEmail')).toBeVisible();
   await expect(page.locator('#loginPass')).toBeVisible();
@@ -38,13 +39,15 @@ test('正常ログインできる', async ({ page }) => {
 
 test('認証情報が違うとアラート表示', async ({ page }) => {
   await openLocalSite(page);
-  page.on('dialog', async dialog => {
-    await expect(dialog.message()).toContain('ログインに失敗しました');
-    await dialog.accept();
-  });
+
+  const dialogPromise = page.waitForEvent('dialog');
   await page.locator('#loginEmail').fill(users.invalidUser.email);
   await page.locator('#loginPass').fill(users.invalidUser.password);
   await page.getByRole('button', { name: 'ログイン' }).click();
+
+  const dialog = await dialogPromise;
+  await expect(dialog.message()).toContain('ログインに失敗しました');
+  await dialog.accept();
 });
 
 test('新規登録画面へ遷移できる', async ({ page }) => {
