@@ -1,6 +1,6 @@
-import { test, expect } from '@playwright/test';
-import { openLocalSite, login, expectHomeVisible } from './helpers.js';
-import { users } from './test-data.js';
+const { test, expect } = require('@playwright/test');
+const { openLocalSite, login, expectHomeVisible } = require('./helpers.js');
+const { users } = require('./test-data.js');
 
 test('ログイン画面が表示される', async ({ page }) => {
   await openLocalSite(page);

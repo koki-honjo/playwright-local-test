@@ -1,19 +1,15 @@
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { expect } from '@playwright/test';
-import { users } from './test-data.js';
+const path = require('path');
+const { expect } = require('@playwright/test');
+const { users } = require('./test-data.js');
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const filePath = 'file://' + path.resolve(__dirname, '../index.html');
 
-export const filePath = 'file://' + path.resolve(__dirname, '../index.html');
-
-export async function openLocalSite(page) {
+async function openLocalSite(page) {
   await page.goto(filePath);
   await expect(page.locator('#login')).toBeVisible();
 }
 
-export async function login(
+async function login(
   page,
   email = users.validUser.email,
   password = users.validUser.password
@@ -29,15 +25,24 @@ export async function login(
   await page.getByRole('button', { name: 'ログイン' }).click();
 }
 
-export async function expectHomeVisible(page) {
+async function expectHomeVisible(page) {
   await expect(page.locator('#home')).toBeVisible();
   await expect(page.locator('#home')).toHaveClass(/active/);
 }
 
-export async function gotoTab(page, name) {
+async function gotoTab(page, name) {
   await page.getByRole('button', { name }).click();
 }
 
-export async function expectVisibleText(page, text) {
+async function expectVisibleText(page, text) {
   await expect(page.getByText(text)).toBeVisible();
 }
+
+module.exports = {
+  filePath,
+  openLocalSite,
+  login,
+  expectHomeVisible,
+  gotoTab,
+  expectVisibleText,
+};
