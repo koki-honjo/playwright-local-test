@@ -39,13 +39,14 @@ test('正常ログインできる', async ({ page }) => {
 
 test('認証情報が違うとアラート表示', async ({ page }) => {
   await openLocalSite(page);
-
-  const dialogPromise = page.waitForEvent('dialog');
   await page.locator('#loginEmail').fill(users.invalidUser.email);
   await page.locator('#loginPass').fill(users.invalidUser.password);
-  await page.getByRole('button', { name: 'ログイン' }).click();
 
-  const dialog = await dialogPromise;
+  const [dialog] = await Promise.all([
+    page.waitForEvent('dialog'),
+    page.getByRole('button', { name: 'ログイン' }).click(),
+  ]);
+
   await expect(dialog.message()).toContain('ログインに失敗しました');
   await dialog.accept();
 });

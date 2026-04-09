@@ -31,7 +31,9 @@ async function expectHomeVisible(page) {
 }
 
 async function gotoTab(page, name) {
-  await page.getByRole('button', { name }).click();
+  const tabbar = page.locator('#tabbar');
+  await expect(tabbar).toBeVisible();
+  await tabbar.getByRole('button', { name, exact: true }).click();
 }
 
 async function expectVisibleText(page, text) {
