@@ -10,7 +10,7 @@ on:
 jobs:
   test-bug:
     runs-on: ubuntu-latest
-    continue-on-error: true
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -20,13 +20,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
+          cache: npm
 
       - name: Install dependencies
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps
+        run: npx playwright install --with-deps chromium
 
       - name: Run bug tests
         run: npx playwright test --project=bug-chromium
@@ -46,3 +46,20 @@ jobs:
           name: test-results-bug
           path: test-results/
           retention-days: 7
+
+      - name: Notify Slack
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            STATUS="✅ 成功"
+          else
+            STATUS="❌ 失敗"
+          fi
+
+          RUN_URL="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+
+          curl -X POST -H "Content-type: application/json" \
+          --data "{
+            \"text\": \"${STATUS}\n【GitHub Actions】Playwright Bug Tests\nリポジトリ: ${{ github.repository }}\nブランチ: ${{ github.ref_name }}\n実行者: ${{ github.actor }}\nイベント: ${{ github.event_name }}\n詳細: ${RUN_URL}\"
+          }" \
+          "${{ secrets.SLACK_WEBHOOK_URL }}"
